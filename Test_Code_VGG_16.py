@@ -109,3 +109,4 @@ def vgg16_bn(pretrained=False, progress=True, **kwargs):
         progress (bool): If True, displays a progress bar of the download to stderr
     """
     return _vgg('vgg16_bn', 'D', True, pretrained, progress, **kwargs)
+"""
