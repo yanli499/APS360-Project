@@ -30,6 +30,11 @@ CLASSES = ['afraid','angry','disgusted','happy','neutral','sad','surprised']
 EMOTION_CODE = {"AF":"afraid", "AN":"angry", "DI":"disgusted", "HA":"happy", 
                 "NE":"neutral", "SA":"sad", "SU":"surprised"}
 
+ALEXNET = torchvision.models.alexnet(pretrained=True)
+
+LABELS = {0:"afraid", 1:"angry", 2:"disgusted", 3:"happy",
+                4:"neutral", 5:"sad", 6:"surprised"}
+
 # main directory filepaths
 # normpath will replace fwd slash w back
 ROOT_DIR = os.path.normpath('C:/Users/Lucy/Downloads/Test_Env/')
@@ -117,11 +122,21 @@ def evaluate(net, loader, criterion):
 def test(model, filename):
     img = Image.open(filename).convert('L')
     new_img = img.resize((256, 256))
-    new_img = new_img.crop((16, 16, 240, 240))
-    trans = transforms.ToTensor()
-    imgs = trans(new_img)    
-    out = model(imgs)
-    print(out)
+
+    data_transform = transforms.Compose([transforms.CenterCrop(224),
+                                      transforms.ToTensor()])
+
+    imgs = data_transform(new_img)
+
+    features = ALEXNET.features(imgs)
+
+    features = torch.from_numpy(features.detach().numpy())
+
+    out = model(features)
+    prob = F.softmax(out)
+    pred = prob.max(1, keepdim=True)[1]
+
+    print(LABELS[pred])
 
 
 """ MODEL TRAINING + TESTING """
