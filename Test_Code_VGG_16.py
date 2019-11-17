@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # ALL import statements
 import os
 import shutil
@@ -30,53 +31,58 @@ EMOTION_CODE = {"AF":"afraid", "AN":"angry", "DI":"disgusted", "HA":"happy",
                 "NE":"neutral", "SA":"sad", "SU":"surprised"}
 
 # main directory filepaths
-ROOT_DIR = ''
-DATA_DIR='/content/drive/My Drive/Colab Notebooks/Faces'
-KDEF_DIR = '/content/drive/My Drive/Colab Notebooks/PROJECT/KDEF/' # path to KDEF main folder
+ROOT_DIR = '/c/Users/Lucy/Downloads/Test_Env'
+DATA_DIR = '/c/Users/Lucy/Downloads/Test_Env/Faces'
+DATA_DIR_FWS = '/c/Users/Lucy/Downloads/Test_Env/Faces/'
+KDEF_DIR = '/c/Users/Lucy/Downloads/Test_Env/KDEF/'
+ALEXNET_DIR = '/c/Users/Lucy/Downloads/Test_Env/Faces/alexnet'
 
-# crop all images to 224 x 224 for all datasets
-# generate image folders + data loaders for train, val, test
-DATA_TRANSFORM = transforms.Compose([transforms.CenterCrop(224), transforms.ToTensor()])
+def generate_main_info():
+    # crop all images to 224 x 224 for all datasets
+    # generate image folders + data loaders for train, val, test
+    data_transform = transforms.Compose([transforms.CenterCrop(224), transforms.ToTensor()])
 
-DIR_PATHS = {
-    'train': os.path.join(DATA_DIR, 'train/'),
-    'val': os.path.join(DATA_DIR, 'val/'),
-    'test': os.path.join(DATA_DIR, 'test/')
-}
+    dir_paths = {
+        'train': os.path.join(DATA_DIR_FWS, 'train/'),
+        'val': os.path.join(DATA_DIR_FWS, 'val/'),
+        'test': os.path.join(DATA_DIR_FWS, 'test/')
+    }
 
-IMAGE_DATASETS = {
-    'train': datasets.ImageFolder(
-        DIR_PATHS['train'], 
-        transform=DATA_TRANSFORM
-    ),
-    'val': datasets.ImageFolder(
-        DIR_PATHS['val'], 
-        transform=DATA_TRANSFORM
-    ),
-    'test': datasets.ImageFolder(
-        DIR_PATHS['test'], 
-        transform=DATA_TRANSFORM
-    )
-}
+    image_datasets = {
+        'train': datasets.ImageFolder(
+            dir_paths['train'], 
+            transform=data_transform
+        ),
+        'val': datasets.ImageFolder(
+            dir_paths['val'], 
+            transform=data_transform
+        ),
+        'test': datasets.ImageFolder(
+            dir_paths['test'], 
+            transform=data_transform
+        )
+    }
 
-DATA_LOADERS = {
-    'train': torch.utils.data.DataLoader(
-        IMAGE_DATASETS['train'], batch_size=1
-    ),
-    'val': torch.utils.data.DataLoader(
-        IMAGE_DATASETS['val'], batch_size=1
-    ),
-    'test': torch.utils.data.DataLoader(
-        IMAGE_DATASETS['test'], batch_size=1
-    )
-}
+    data_loaders = {
+        'train': torch.utils.data.DataLoader(
+            image_datasets['train'], batch_size=1
+        ),
+        'val': torch.utils.data.DataLoader(
+            image_datasets['val'], batch_size=1
+        ),
+        'test': torch.utils.data.DataLoader(
+            image_datasets['test'], batch_size=1
+        )
+    }
 
-# get size of each dataset
-DATASET_SIZES = {
-    'train': len(IMAGE_DATASETS['train']),
-    'val': len(IMAGE_DATASETS['val']),
-    'test': len(IMAGE_DATASETS['test']) 
-}
+    # get size of each dataset
+    dataset_sizes = {
+        'train': len(image_datasets['train']),
+        'val': len(image_datasets['val']),
+        'test': len(image_datasets['test']) 
+    }
+
+    return data_loaders
 
 
 # Artifical Neural Network Architecture
@@ -106,28 +112,6 @@ def create_useful_dataset():
         - str[4:5] = {"AF":"afraid", "AN":"angry", "DI":"disgusted", "HA":"happy",
         "NE":"neutral", "SA":sad", "SU":"surprised"}
     """
-    # delete existing folder
-    if os.path.exists(DATA_DIR+'/'):
-        shutil.rmtree(DATA_DIR+'/')
-
-    # make new directories for each emotion class + train, val, test
-    try:
-        os.mkdir(DATA_DIR)
-        os.mkdir(DATA_DIR+'/train')
-        os.mkdir(DATA_DIR+'/val')
-        os.mkdir(DATA_DIR+'/test')
-        
-        for i in CLASSES:
-            os.mkdir(DATA_DIR+'/'+i)
-            os.mkdir(DATA_DIR+'/train/'+i)
-            os.mkdir(DATA_DIR+'/val/'+i)
-            os.mkdir(DATA_DIR+'/test/'+i)
-
-    except OSError:
-        print ("Creation of the directories failed!")
-    else:
-        print ("Successfully created the directories!")
-
     # go thru KDEF data + sort out desired photos
     for subdir, dirs, files in os.walk(KDEF_DIR):
         for file in files:
@@ -157,7 +141,7 @@ def create_useful_dataset():
                 new_img_ccw.save(DATA_DIR+'/'+EMOTION_CODE[label]+'/'+'2'+file)
                 new_img_flip.save(DATA_DIR+'/'+EMOTION_CODE[label]+'/'+'3'+file)
     
-    print ("Finished creating useful dataset!")
+    print("Finished creating useful dataset!")
 
 def split_data_to_subsets():   
     """
@@ -167,7 +151,7 @@ def split_data_to_subsets():
     # divide data into train, val, + test
     # for each emotion class, get filenames, shuffle, 
     # divide, move to corresponding folders
-    for cla in classes:
+    for cla in CLASSES:
         filepath = DATA_DIR+'/'+cla
         names = []
 
@@ -188,33 +172,11 @@ def split_data_to_subsets():
                 # Move to test
                 shutil.move(filepath+'/'+name, DATA_DIR+'/test/'+cla+'/'+name)
     
-    print ("Finished splitting data to training, val, and test subsets")
-
-def create_tensor_folders(): # saving features as tensors in folder structure
-    # delete existing folder
-    if os.path.exists(DATA_DIR+'alexnet'):
-        shutil.rmtree(DATA_DIR+'alexnet')
-
-    try:
-        # create train, val, test folders for VGG features
-        os.mkdir(DATA_DIR+'alexnet')
-        os.mkdir(DATA_DIR+'alexnet/train')
-        os.mkdir(DATA_DIR+'alexnet/val')
-        os.mkdir(DATA_DIR+'alexnet/test')
-
-        for i in CLASSES:
-            os.mkdir(DATA_DIR+'alexnet/train/'+i)
-            os.mkdir(DATA_DIR+'alexnet/val/'+i)
-            os.mkdir(DATA_DIR+'alexnet/test/'+i)
-
-    except OSError:
-        print ("Creation of the directories failed!")
-    else:
-        print ("Successfully created the directories!")
+    print("Finished splitting data to training, val, and test subsets")
 
 def save_tensor_helper(dir_name, features, label, img_num):
     # save tensor to appropriate emotion folder
-    path='/content/drive/My Drive/Colab Notebooks/Faces/'+dir_name
+    path = DATA_DIR + '/'+dir_name
 
     if (label.item() == 0):
         torch.save(features, path + '/afraid/features_' + str(img_num) + '.tensor')
@@ -231,22 +193,22 @@ def save_tensor_helper(dir_name, features, label, img_num):
     if (label.item() == 6):
         torch.save(features, path + '/surprised/features_' + str(img_num) + '.tensor')
 
-def save_tensors(model, model_name='alexnet'):
+def save_tensors(model, data_loaders, model_name='alexnet'):
     # save tensors to train, val, test folders
     i = 0
-    for img, label in DATA_LOADERS['train']:
+    for img, label in data_loaders['train']:
         features = model.features(img)
         save_tensor_helper(model_name+'/train', features, label, i)
         i+=1
 
     i = 0
-    for img, label in DATA_LOADERS['val']:
+    for img, label in data_loaders['val']:
         features = model.features(img)
         save_tensor_helper(model_name+'/val', features, label, i)
         i+=1
 
     i = 0
-    for img, label in DATA_LOADERS['test']:
+    for img, label in data_loaders['test']:
         features = model.features(img)
         save_tensor_helper(model_name+'/test', features, label, i)
         i+=1
@@ -258,9 +220,9 @@ def load_feature(loc):
 
 def get_features_data_loader(data_dir, batch_size): # Data Loading
     # define training and test data directories
-    train_dir = os.path.join(data_dir, 'train/')
-    val_dir = os.path.join(data_dir, 'val/')
-    test_dir = os.path.join(data_dir, 'test/')
+    train_dir = os.path.join(data_dir, '/train/')
+    val_dir = os.path.join(data_dir, '/val/')
+    test_dir = os.path.join(data_dir, '/test/')
 
     train_data = datasets.DatasetFolder(train_dir, loader=load_feature, extensions = '.tensor')
     val_data = datasets.DatasetFolder(val_dir, loader=load_feature, extensions = '.tensor')
@@ -369,7 +331,7 @@ def plot_training_curve(path):
 
     
 def train_net(net, batch_size=64, learning_rate=0.01, num_epochs=30,
-    data_dir='/content/drive/My Drive/Colab Notebooks/Faces/'):
+    data_dir=DATA_DIR):
 
     # Fixed PyTorch random seed for reproducible result
     torch.manual_seed(1000)
@@ -447,22 +409,21 @@ if __name__ == "__main__":
     # data processing
     create_useful_dataset()
     split_data_to_subsets()
-    create_tensor_folders()
-    save_tensors(alexnet)
+    data_loaders = generate_main_info()
+    save_tensors(model, data_loaders)
 
     # transfer learning + model training
     model = ANNClassifier_Alexnet()
     train_net(model, batch_size=128, learning_rate=0.001, num_epochs=150,
-        data_dir='/content/drive/My Drive/Colab Notebooks/Faces/alexnet')
+        data_dir=ALEXNET_DIR)
     model_path = get_model_name(model.name, batch_size=128, learning_rate=0.001, epoch=149)
-    plot_training_curve('/content/' + model_path)
+    plot_training_curve(ROOT_DIR + model_path)
 
     model = ANNClassifier_Alexnet()
-    state = torch.load('/content/' + model_path)
+    state = torch.load(ROOT_DIR + model_path)
     model.load_state_dict(state)
 
-    data_dir = DATA_DIR + '/alexnet'
-    train_loader, val_loader, test_loader = get_features_data_loader(data_dir=data_dir, batch_size=128)
+    train_loader, val_loader, test_loader = get_features_data_loader(data_dir=ALEXNET_DIR, batch_size=128)
 
     criterion = nn.CrossEntropyLoss()
     test_acc, test_loss = evaluate(model, test_loader, criterion)
