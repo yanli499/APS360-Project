@@ -10,16 +10,16 @@ def accept_incoming_connections():
     while True:
         client, client_address = SERVER.accept()
         print("%s:%s has connected." % client_address)
-        client.send(bytes("Greetings from the cave! Now type your name and press enter!", "utf8"))
+        client.send(bytes("Hi! Please type your name and press enter to begin!", "utf8"))
         addresses[client] = client_address
         Thread(target=handle_client, args=(client,)).start()
 
 
-def handle_client(client):  # Takes client socket as argument.
+def handle_client(client):
+    # Takes client socket as argument.
     """Handles a single client connection."""
-
     name = client.recv(BUFSIZ).decode("utf8")
-    welcome = 'Welcome %s! If you ever want to quit, type {quit} to exit.' % name
+    welcome = 'Welcome %s! If you want to quit the app, type {quit} to exit.' % name
     client.send(bytes(welcome, "utf8"))
     msg = "%s has joined the chat!" % name
     broadcast(bytes(msg, "utf8"))
@@ -37,17 +37,21 @@ def handle_client(client):  # Takes client socket as argument.
             break
 
 
-def broadcast(msg, prefix=""):  # prefix is for name identification.
+def broadcast(msg, prefix=""):
+    # prefix is for name identification.
     """Broadcasts a message to all the clients."""
+
+    # RUN ML MODEL HERE -----------
 
     for sock in clients:
         sock.send(bytes(prefix, "utf8")+msg)
 
-        
+
+# Global variables 
 clients = {}
 addresses = {}
 
-HOST = ''
+HOST = '127.0.0.1'
 PORT = 33000
 BUFSIZ = 1024
 ADDR = (HOST, PORT)
