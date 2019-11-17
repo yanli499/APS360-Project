@@ -31,11 +31,11 @@ EMOTION_CODE = {"AF":"afraid", "AN":"angry", "DI":"disgusted", "HA":"happy",
                 "NE":"neutral", "SA":"sad", "SU":"surprised"}
 
 # main directory filepaths
-ROOT_DIR = '/c/Users/Lucy/Downloads/Test_Env'
-DATA_DIR = '/c/Users/Lucy/Downloads/Test_Env/Faces'
-DATA_DIR_FWS = '/c/Users/Lucy/Downloads/Test_Env/Faces/'
-KDEF_DIR = '/c/Users/Lucy/Downloads/Test_Env/KDEF/'
-ALEXNET_DIR = '/c/Users/Lucy/Downloads/Test_Env/Faces/alexnet'
+ROOT_DIR = 'C:\\Users\\Lucy\\Downloads\\Test_Env'
+DATA_DIR = 'C:\\Users\\Lucy\\Downloads\\Test_Env\\Faces'
+DATA_DIR_FWS = 'C:\\Users\\Lucy\\Downloads\\Test_Env\\Faces\\'
+KDEF_DIR = 'C:\\Users\\Lucy\\Downloads\\Test_Env\\KDEF\\'
+ALEXNET_DIR = 'C:\\Users\\Lucy\\Downloads\\Test_Env\\Faces\\alexnet'
 
 def generate_main_info():
     # crop all images to 224 x 224 for all datasets
@@ -136,10 +136,10 @@ def create_useful_dataset():
                 new_img_flip = img_flip.resize((256, 256))
 
                 label = file[4:6]
-                new_img.save(DATA_DIR+'/'+EMOTION_CODE[label]+'/'+file)
-                new_img_cw.save(DATA_DIR+'/'+EMOTION_CODE[label]+'/'+'1'+file)
-                new_img_ccw.save(DATA_DIR+'/'+EMOTION_CODE[label]+'/'+'2'+file)
-                new_img_flip.save(DATA_DIR+'/'+EMOTION_CODE[label]+'/'+'3'+file)
+                new_img.save(DATA_DIR+'\\'+EMOTION_CODE[label]+'\\'+file)
+                new_img_cw.save(DATA_DIR+'\\'+EMOTION_CODE[label]+'\\'+'1'+file)
+                new_img_ccw.save(DATA_DIR+'\\'+EMOTION_CODE[label]+'\\'+'2'+file)
+                new_img_flip.save(DATA_DIR+'\\'+EMOTION_CODE[label]+'\\'+'3'+file)
     
     print("Finished creating useful dataset!")
 
@@ -152,7 +152,7 @@ def split_data_to_subsets():
     # for each emotion class, get filenames, shuffle, 
     # divide, move to corresponding folders
     for cla in CLASSES:
-        filepath = DATA_DIR+'/'+cla
+        filepath = DATA_DIR+'\\'+cla
         names = []
 
         for file in os.listdir(filepath):
@@ -164,53 +164,53 @@ def split_data_to_subsets():
         for ind, name in enumerate(names):
             if(ind <= math.ceil(0.6 * num_files)):
                 # Move to train
-                shutil.move(filepath+'/'+name, DATA_DIR+'/train/'+cla+'/'+name)
+                shutil.move(filepath+'\\'+name, DATA_DIR+'\\train\\'+cla+'\\'+name)
             elif(ind <= math.ceil(0.8 * num_files)):
                 # Move to val
-                shutil.move(filepath+'/'+name, DATA_DIR+'/val/'+cla+'/'+name)
+                shutil.move(filepath+'\\'+name, DATA_DIR+'\\val\\'+cla+'\\'+name)
             else:
                 # Move to test
-                shutil.move(filepath+'/'+name, DATA_DIR+'/test/'+cla+'/'+name)
+                shutil.move(filepath+'\\'+name, DATA_DIR+'\\test\\'+cla+'\\'+name)
     
     print("Finished splitting data to training, val, and test subsets")
 
 def save_tensor_helper(dir_name, features, label, img_num):
     # save tensor to appropriate emotion folder
-    path = DATA_DIR + '/'+dir_name
+    path = DATA_DIR + '\\'+dir_name
 
     if (label.item() == 0):
-        torch.save(features, path + '/afraid/features_' + str(img_num) + '.tensor')
+        torch.save(features, path + '\\afraid\\features_' + str(img_num) + '.tensor')
     if (label.item() == 1):
-        torch.save(features, path + '/angry/features_' + str(img_num) + '.tensor')
+        torch.save(features, path + '\\angry\\features_' + str(img_num) + '.tensor')
     if (label.item() == 2):
-        torch.save(features, path + '/disgusted/features_' + str(img_num) + '.tensor')
+        torch.save(features, path + '\\disgusted\\features_' + str(img_num) + '.tensor')
     if (label.item() == 3):
-        torch.save(features, path + '/happy/features_' + str(img_num) + '.tensor')
+        torch.save(features, path + '\\happy\\features_' + str(img_num) + '.tensor')
     if (label.item() == 4):
-        torch.save(features, path + '/neutral/features_' + str(img_num) + '.tensor')
+        torch.save(features, path + '\\neutral\\features_' + str(img_num) + '.tensor')
     if (label.item() == 5):
-        torch.save(features, path + '/sad/features_' + str(img_num) + '.tensor')
+        torch.save(features, path + '\\sad\\features_' + str(img_num) + '.tensor')
     if (label.item() == 6):
-        torch.save(features, path + '/surprised/features_' + str(img_num) + '.tensor')
+        torch.save(features, path + '\\surprised\\features_' + str(img_num) + '.tensor')
 
 def save_tensors(model, data_loaders, model_name='alexnet'):
     # save tensors to train, val, test folders
     i = 0
     for img, label in data_loaders['train']:
         features = model.features(img)
-        save_tensor_helper(model_name+'/train', features, label, i)
+        save_tensor_helper(model_name+'\\train', features, label, i)
         i+=1
 
     i = 0
     for img, label in data_loaders['val']:
         features = model.features(img)
-        save_tensor_helper(model_name+'/val', features, label, i)
+        save_tensor_helper(model_name+'\\val', features, label, i)
         i+=1
 
     i = 0
     for img, label in data_loaders['test']:
         features = model.features(img)
-        save_tensor_helper(model_name+'/test', features, label, i)
+        save_tensor_helper(model_name+'\\test', features, label, i)
         i+=1
 
 
@@ -220,9 +220,9 @@ def load_feature(loc):
 
 def get_features_data_loader(data_dir, batch_size): # Data Loading
     # define training and test data directories
-    train_dir = os.path.join(data_dir, '/train/')
-    val_dir = os.path.join(data_dir, '/val/')
-    test_dir = os.path.join(data_dir, '/test/')
+    train_dir = os.path.join(data_dir, '\\train\\')
+    val_dir = os.path.join(data_dir, '\\val\\')
+    test_dir = os.path.join(data_dir, '\\test\\')
 
     train_data = datasets.DatasetFolder(train_dir, loader=load_feature, extensions = '.tensor')
     val_data = datasets.DatasetFolder(val_dir, loader=load_feature, extensions = '.tensor')
@@ -402,24 +402,25 @@ def train_net(net, batch_size=64, learning_rate=0.01, num_epochs=30,
 
 """ MODEL TRAINING + TESTING """
 if __name__ == "__main__":
-    # set up AlexNet model
-    alexnet = torchvision.models.alexnet(pretrained=True)
-    torch.manual_seed(1)
+    # # set up AlexNet model
+    # alexnet = torchvision.models.alexnet(pretrained=True)
+    # torch.manual_seed(1)
 
-    # data processing
-    create_useful_dataset()
-    split_data_to_subsets()
-    data_loaders = generate_main_info()
-    save_tensors(model, data_loaders)
+    # # data processing
+    # create_useful_dataset()
+    # split_data_to_subsets()
+    # data_loaders = generate_main_info()
+    # save_tensors(alexnet, data_loaders)
 
-    # transfer learning + model training
+    # # transfer learning + model training
+    # model = ANNClassifier_Alexnet()
+    # train_net(model, batch_size=128, learning_rate=0.001, num_epochs=150,
+    #     data_dir=ALEXNET_DIR)
+    # model_path = get_model_name(model.name, batch_size=128, learning_rate=0.001, epoch=149)
+    # plot_training_curve(ROOT_DIR + model_path)
+
     model = ANNClassifier_Alexnet()
-    train_net(model, batch_size=128, learning_rate=0.001, num_epochs=150,
-        data_dir=ALEXNET_DIR)
     model_path = get_model_name(model.name, batch_size=128, learning_rate=0.001, epoch=149)
-    plot_training_curve(ROOT_DIR + model_path)
-
-    model = ANNClassifier_Alexnet()
     state = torch.load(ROOT_DIR + model_path)
     model.load_state_dict(state)
 
