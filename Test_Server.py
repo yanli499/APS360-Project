@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Server for multithreaded (asynchronous) chat application."""
 """From https://medium.com/swlh/lets-write-a-chat-app-in-python-f6783a9ac170"""
+import os
+
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
+from ML_API_V1 import ModelsContainer
 
 
 def accept_incoming_connections():
@@ -42,12 +45,15 @@ def broadcast(msg, prefix=""):
     """Broadcasts a message to all the clients."""
 
     # RUN ML MODEL HERE -----------
+    # <Get screenshot + save to some folder, returning filepath>
+        # image_filepath = <screenshot related code>
+    ML_MODELS.detect_image_emotion(os.path.normpath('C:/Users/Lucy/Downloads/Test_Env/KDEF/AF19/AF19HAS.JPG'))
 
     for sock in clients:
         sock.send(bytes(prefix, "utf8")+msg)
 
 
-# Global variables 
+# SERVER GLOBAL VARIABLES
 clients = {}
 addresses = {}
 
@@ -58,6 +64,9 @@ ADDR = (HOST, PORT)
 
 SERVER = socket(AF_INET, SOCK_STREAM)
 SERVER.bind(ADDR)
+
+ML_MODELS = ModelsContainer()
+
 
 if __name__ == "__main__":
     SERVER.listen(5)
