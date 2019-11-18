@@ -6,6 +6,7 @@ import copy
 import time
 import math
 import random
+import cv2
 import numpy as np
 import torch
 import torch.nn as nn
@@ -122,21 +123,44 @@ def evaluate(net, loader, criterion):
 def test(model, filename):
     img = Image.open(filename).convert('L')
     new_img = img.resize((256, 256))
+    new_img_path = os.path.normpath('C:/Users/Lucy/Downloads/Test_Env/TEMP/img.jpg')
+    new_img.save(new_img_path)
+
+    # Use to convert 1-channel grayscale image to a 3-channel "grayscale" image
+    # to use for AlexNet.features
+    # Note: For some odd reason, differing from Colab,
+    # data_transform(new_image) actually gives shape [1, 224, 224]
+    # when we need [3, 224, 224] as input for AlexNet
+    #########################
+    gray_img = cv2.imread(new_img_path)
+    gray = cv2.cvtColor(gray_img, cv2.COLOR_BGR2GRAY)
+    img2 = np.zeros_like(gray_img)
+    img2[:,:,0] = gray
+    img2[:,:,1] = gray
+    img2[:,:,2] = gray
+    new_gray_img_path = os.path.normpath('C:/Users/Lucy/Downloads/Test_Env/TEMP/img_grey.jpg')
+    cv2.imwrite(new_gray_img_path, img2)
+    #########################
 
     data_transform = transforms.Compose([transforms.CenterCrop(224),
                                       transforms.ToTensor()])
 
-    imgs = data_transform(new_img)
+    imgs = Image.open(new_gray_img_path)
+    imgs = data_transform(imgs)
+    # print(imgs.shape) # DEBUG Log: torch.Size([3, 224, 224])
+    imgs = imgs.reshape([1, 3, 224, 224])
 
     features = ALEXNET.features(imgs)
+    # print(features.shape) # DEBUG Log: torch.Size([1, 256, 6, 6])
 
     features = torch.from_numpy(features.detach().numpy())
 
     out = model(features)
     prob = F.softmax(out)
     pred = prob.max(1, keepdim=True)[1]
+    int_pred = int(pred[0][0])
 
-    print(LABELS[pred])
+    print("The individual is {}".format(LABELS[int_pred]))
 
 
 """ MODEL TRAINING + TESTING """
@@ -148,8 +172,4 @@ if __name__ == "__main__":
     model.load_state_dict(state)
 
     test(model, os.path.normpath('C:/Users/Lucy/Downloads/Test_Env/KDEF/AF01/AF01AFS.JPG'))
-    # test_loader = get_features_data_loader(batch_size=128)
 
-    # criterion = nn.CrossEntropyLoss()
-    # test_acc, test_loss = evaluate(model, test_loader, criterion)
-    # print("Test classification accuracy:", test_acc)
