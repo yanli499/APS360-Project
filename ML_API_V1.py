@@ -53,7 +53,7 @@ class ModelsContainer:
         # Init facial ANN model
         self.alexnet = torchvision.models.alexnet(pretrained=True)
         self.facial_ann = ANNClassifier_Alexnet()
-        state_path = Path.home().joinpath('Downloads', 'Test_Env', 'test_843_model_alexnet_ann_bs128_lr0_001_epoch149')
+        state_path = os.path.normpath('C:/Users/Lucy/Downloads/Test_Env/test_843_model_alexnet_ann_bs128_lr0_001_epoch149')
         state = torch.load(state_path)
         self.facial_ann.load_state_dict(state)
 
@@ -66,7 +66,7 @@ class ModelsContainer:
         """
         img = Image.open(filename).convert('L')
         new_img = img.resize((256, 256))
-        new_img_path = Path.home().joinpath('Downloads', 'Test_Env', 'TEMP', 'img.jpg')
+        new_img_path = os.path.normpath('C:/Users/Lucy/Downloads/Test_Env/TEMP/img.jpg')
         new_img.save(new_img_path)
 
         # Use to convert 1-channel grayscale image to a 3-channel "grayscale" image
@@ -81,7 +81,7 @@ class ModelsContainer:
         img2[:,:,0] = grey
         img2[:,:,1] = grey
         img2[:,:,2] = grey
-        new_grey_img_path = Path.home().joinpath('Downloads', 'Test_Env', 'TEMP', 'img_grey.jpg')
+        new_grey_img_path = os.path.normpath('C:/Users/Lucy/Downloads/Test_Env/TEMP/img_grey.jpg')
         cv2.imwrite(new_grey_img_path, img2)
         #########################
 
