@@ -65,7 +65,11 @@ class ModelsContainer:
             pred_label: emotion label (str) predicted by the model
         """
         img = Image.open(filename)
-        new_img = img.resize((256, 256))
+        new_img = img.resize((1500, 1500))
+
+        data_transform = transforms.CenterCrop(500)
+        new_img = data_transform(img)
+
         new_img_path = os.path.normpath('/Users/Harshita/Documents/GitHub/ChatTime/img.jpg')
         new_img.save(new_img_path)
 
@@ -85,10 +89,18 @@ class ModelsContainer:
         cv2.imwrite(new_grey_img_path, img2)
         #########################
 
-        data_transform = transforms.Compose([transforms.CenterCrop(224),
-                                        transforms.ToTensor()])
+        #data_transform = transforms.Compose([transforms.CenterCrop(224),
+        #                                transforms.ToTensor()])
 
         imgs = Image.open(new_grey_img_path)
+        #imgs = data_transform(imgs)
+        imgs = imgs.resize((224, 224))
+
+        data_transform = transforms.ToTensor()
+
+        imgs_path = os.path.normpath('/Users/Harshita/Documents/GitHub/ChatTime/input_img.jpg')
+        imgs.save(imgs_path)
+
         imgs = data_transform(imgs)
         # print(imgs.shape) # DEBUG Log: torch.Size([3, 224, 224])
         imgs = imgs.reshape([1, 3, 224, 224])

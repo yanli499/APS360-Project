@@ -16,17 +16,15 @@ def receive():
         except OSError:  # Possibly client has left the chat.
             break
 
+
 def send(event=None):  # event is passed by binders.
     """Handles sending of messages."""
     msg = my_msg.get()
     my_msg.set("")  # Clears input field.
-    client_socket.send(bytes(msg, "utf8"))
 
     cam = cv2.VideoCapture(0)
     cv2.namedWindow("ChatTime")
 
-    #should be global
-    img_counter = 0
     #should be in the client send() function
     #takes a picture everytime the user sends a message
     ret, frame = cam.read()
@@ -34,12 +32,13 @@ def send(event=None):  # event is passed by binders.
     if not ret:
         return
 
-    img_name = "frame_{}.jpg".format(img_counter)
+    img_name = "frame.jpg"
     cv2.imwrite(img_name, frame)
-    img_counter += 1
 
     cam.release()
     cv2.destroyAllWindows()
+
+    client_socket.send(bytes(msg, "utf8"))
 
     if msg == "{quit}":
         client_socket.close()
