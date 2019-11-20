@@ -23,13 +23,13 @@ from torchvision import datasets, models, transforms
 from torch.optim import lr_scheduler
 from torch.autograd import Variable
 
-
 # GLOBAL VARIABLES
 CLASSES = ['afraid','angry','disgusted','happy','neutral','sad','surprised']
-LABELS = {0:"afraid", 1:"angry", 2:"disgusted", 3:"happy",
+LABELS = {0:"afraid", 1:"angry", 2:"disgusted", 3:"happy", 
             4:"neutral", 5:"sad", 6:"surprised"}
 GLOVE = torchtext.vocab.GloVe(name='twitter.27B', dim=200)
 
+# ROOT_IMAGE_DIR = os.path.normpath('C:/Users/Lucy/Downloads/Test_Env/')
 
 # Artifical Neural Network Architecture
 class ANNClassifier_Alexnet(nn.Module):
@@ -69,23 +69,21 @@ class TweetRNN_GRU(nn.Module):
         out = self.fc(out[:, -1, :])
         return out
 
+
 class ModelsContainer:
     def __init__(self):
         # Init text RNN model
         self.text_rnn_gru = TweetRNN_GRU(200, 100, 2)
         state_path = os.path.normpath('/Users/safeerahzainab/Desktop/APS360Project/model_RNN_GRU_bs100_lr0.003_epoch6')
         state = torch.load(state_path)
-        self.text_rnn_gru.load_state_dict(state)
+        self.text_rnn_gru.load_state_dict(state)       
 
         # Init facial ANN model
         self.alexnet = torchvision.models.alexnet(pretrained=True)
         self.facial_ann = ANNClassifier_Alexnet()
-        state_path = os.path.normpath('/Users/Harshita/Documents/GitHub/ChatTime/test_0843_model_alexnet_ann_bs128_lr0_001_epoch149')
+        state_path = os.path.normpath('/Users/safeerahzainab/Desktop/APS360Project/test_0843_model_alexnet_ann_bs128_lr0_001_epoch149')
         state = torch.load(state_path)
         self.facial_ann.load_state_dict(state)
-
-        # List to store text sentiment results for previous 10 messages
-        self.past_msg = []
 
     def split_tweet(self, tweet, print_data):
         # separate punctuations
@@ -102,24 +100,24 @@ class ModelsContainer:
         
         return tweet.lower().split()
 
+
     def get_new_tweet(self, glove_vector, sample_tweet):
         tweet = sample_tweet
         idxs = [glove_vector.stoi[w]        # lookup the index of word
             for w in self.split_tweet(tweet,3)
             if w in glove_vector.stoi] # keep words that has an embedding
         idxs = torch.tensor(idxs) # convert list to pytorch tensor
-        
         return idxs
 
-    def detect_text_sentiment(self, msg):
-        new_tweet = self.get_new_tweet(GLOVE, msg)
+    def detect_text_sentiment(self):
+
+        new_tweet = self.get_new_tweet(GLOVE, "I hate you")
+
         out = torch.sigmoid(self.text_rnn_gru(new_tweet.unsqueeze(0)))
         pred = out.max(1, keepdim=True)[1]
-        int_pred = pred.item()
-        print(int_pred) # DEBUG
+        return pred
 
-        return int_pred
-    
+
     def detect_image_emotion(self, filename):
         """ Given an image file, use facial ANN to detect the facial expression in image
         Args:
@@ -127,13 +125,9 @@ class ModelsContainer:
         Returns:
             pred_label: emotion label (str) predicted by the model
         """
-        img = Image.open(filename)
-        new_img = img.resize((1500, 1500))
-
-        data_transform = transforms.CenterCrop(500)
-        new_img = data_transform(img)
-
-        new_img_path = os.path.normpath('/Users/Harshita/Documents/GitHub/ChatTime/img.jpg')
+        img = Image.open(filename).convert('L')
+        new_img = img.resize((256, 256))
+        new_img_path = os.path.normpath('/Users/safeerahzainab/Desktop/APS360Project/img.jpg')
         new_img.save(new_img_path)
 
         # Use to convert 1-channel grayscale image to a 3-channel "grayscale" image
@@ -142,28 +136,20 @@ class ModelsContainer:
         # data_transform(new_image) actually gives shape [1, 224, 224]
         # when we need [3, 224, 224] as input for AlexNet
         #########################
-        grey_img = cv2.imread(new_img_path, cv2.IMREAD_ANYCOLOR)
+        grey_img = cv2.imread(new_img_path)
         grey = cv2.cvtColor(grey_img, cv2.COLOR_BGR2GRAY)
         img2 = np.zeros_like(grey_img)
         img2[:,:,0] = grey
         img2[:,:,1] = grey
         img2[:,:,2] = grey
-        new_grey_img_path = os.path.normpath('/Users/Harshita/Documents/GitHub/ChatTime/img_grey.jpg')
+        new_grey_img_path = os.path.normpath('/Users/safeerahzainab/Desktop/APS360Project/img_grey.jpg')
         cv2.imwrite(new_grey_img_path, img2)
         #########################
 
-        #data_transform = transforms.Compose([transforms.CenterCrop(224),
-        #                                transforms.ToTensor()])
+        data_transform = transforms.Compose([transforms.CenterCrop(224),
+                                        transforms.ToTensor()])
 
         imgs = Image.open(new_grey_img_path)
-        #imgs = data_transform(imgs)
-        imgs = imgs.resize((224, 224))
-
-        data_transform = transforms.ToTensor()
-
-        imgs_path = os.path.normpath('/Users/Harshita/Documents/GitHub/ChatTime/input_img.jpg')
-        imgs.save(imgs_path)
-
         imgs = data_transform(imgs)
         # print(imgs.shape) # DEBUG Log: torch.Size([3, 224, 224])
         imgs = imgs.reshape([1, 3, 224, 224])
@@ -183,29 +169,11 @@ class ModelsContainer:
 
         return pred_label
 
-    def detect_text_sentiment(self, msg):
-        self.RNN()
-        # make sure it returns int
+    def combine_results(self, filename):
+        facial_expr = self.detect_image_emotion(filename)
+        text_sent = self.detect_text_sentiment()
+        print(text_sent)
+        final_ans = "WARNING or not?"
+        # The combine logic discussed during meetings
 
-    def combine_results(self, image_file, text_msg):
-        facial_expr = self.detect_image_emotion(image_file)
-        text_sentiment = self.detect_text_sentiment(text_msg)
-
-        # Store text sentiment result into list of past results
-        if(len(self.past_msg) > 10):
-            self.past_msg[:1] = []
-        self.past_msg.append(text_sentiment)
-
-        # RNN: 0 = negative, 1 = positive,
-        if(text_sentiment == 0 and facial_expr == 'angry'):
-            return True
-        elif (text_sentiment == 0 and facial_expr == 'disgusted'):
-            return True
-        elif (text_sentiment == 0 and facial_expr == 'neutral'):
-            total = sum(self.past_msg) / len(self.past_msg)
-            if(total <= 0.6):
-                # This means more than 40% of our previous messages were negative
-                return True
-            return False
-        else:
-            return False
+        return final_ans
