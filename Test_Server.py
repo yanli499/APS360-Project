@@ -47,9 +47,9 @@ def broadcast(msg, prefix=""):
 
     # RUN ML MODEL HERE -----------
     # <Get screenshot + save to some folder, returning filepath>
-        # image_filepath = <screenshot related code>
+    # image_filepath = <screenshot related code>
     img_path = os.path.normpath('C:/Users/Lucy/Downloads/Test_Env/win_20191117_23_47_13_Pro.jpg')
-    ML_MODELS.detect_image_emotion(img_path)
+    result = ML_MODELS.combine_results(img_path, msg)
 
     for sock in clients:
         sock.send(bytes(prefix, "utf8")+msg)
@@ -68,7 +68,6 @@ SERVER = socket(AF_INET, SOCK_STREAM)
 SERVER.bind(ADDR)
 
 ML_MODELS = ModelsContainer()
-
 
 if __name__ == "__main__":
     SERVER.listen(5)
