@@ -80,7 +80,7 @@ class ModelsContainer:
         # Init facial ANN model
         self.alexnet = torchvision.models.alexnet(pretrained=True)
         self.facial_ann = ANNClassifier_Alexnet()
-        state_path = os.path.normpath('/Users/Harshita/Documents/GitHub/ChatTime/test_0843_model_alexnet_ann_bs128_lr0_001_epoch149')
+        state_path = os.path.normpath('/Users/safeerahzainab/Desktop/APS360Project/test_0843_model_alexnet_ann_bs128_lr0_001_epoch149')
         state = torch.load(state_path)
         self.facial_ann.load_state_dict(state)
 
@@ -133,7 +133,7 @@ class ModelsContainer:
         data_transform = transforms.CenterCrop(500)
         new_img = data_transform(img)
 
-        new_img_path = os.path.normpath('/Users/Harshita/Documents/GitHub/ChatTime/img.jpg')
+        new_img_path = os.path.normpath('/Users/safeerahzainab/Desktop/APS360Project/img.jpg')
         new_img.save(new_img_path)
 
         # Use to convert 1-channel grayscale image to a 3-channel "grayscale" image
@@ -148,7 +148,7 @@ class ModelsContainer:
         img2[:,:,0] = grey
         img2[:,:,1] = grey
         img2[:,:,2] = grey
-        new_grey_img_path = os.path.normpath('/Users/Harshita/Documents/GitHub/ChatTime/img_grey.jpg')
+        new_grey_img_path = os.path.normpath('/Users/safeerahzainab/Desktop/APS360Project/img.jpg')
         cv2.imwrite(new_grey_img_path, img2)
         #########################
 
@@ -161,7 +161,7 @@ class ModelsContainer:
 
         data_transform = transforms.ToTensor()
 
-        imgs_path = os.path.normpath('/Users/Harshita/Documents/GitHub/ChatTime/input_img.jpg')
+        imgs_path = os.path.normpath('/Users/safeerahzainab/Desktop/APS360Project/img_grey.jpg')
         imgs.save(imgs_path)
 
         imgs = data_transform(imgs)
@@ -183,9 +183,6 @@ class ModelsContainer:
 
         return pred_label
 
-    def detect_text_sentiment(self, msg):
-        self.RNN()
-        # make sure it returns int
 
     def combine_results(self, image_file, text_msg):
         facial_expr = self.detect_image_emotion(image_file)
