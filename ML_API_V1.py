@@ -27,7 +27,7 @@ from torch.autograd import Variable
 CLASSES = ['afraid','angry','disgusted','happy','neutral','sad','surprised']
 LABELS = {0:"afraid", 1:"angry", 2:"disgusted", 3:"happy",
             4:"neutral", 5:"sad", 6:"surprised"}
-# ROOT_IMAGE_DIR = os.path.normpath('C:/Users/Lucy/Downloads/Test_Env/')
+
 
 # Artifical Neural Network Architecture
 class ANNClassifier_Alexnet(nn.Module):
@@ -56,6 +56,9 @@ class ModelsContainer:
         state_path = os.path.normpath('/Users/Harshita/Documents/GitHub/ChatTime/test_0843_model_alexnet_ann_bs128_lr0_001_epoch149')
         state = torch.load(state_path)
         self.facial_ann.load_state_dict(state)
+
+        # List to store text sentiment results for previous 10 messages
+        self.past_msg = []
 
     def detect_image_emotion(self, filename):
         """ Given an image file, use facial ANN to detect the facial expression in image
@@ -120,9 +123,29 @@ class ModelsContainer:
 
         return pred_label
 
-    def combine_results(self, filename):
-        facial_expr = self.detect_image_emotion(filename)
-        final_ans = "WARNING or not?"
-        # The combine logic discussed during meetings
+    def detect_text_sentiment(self, msg):
+        self.RNN()
+        # make sure it returns int
 
-        return final_ans
+    def combine_results(self, image_file, text_msg):
+        facial_expr = self.detect_image_emotion(image_file)
+        text_sentiment = self.detect_text_sentiment(text_msg)
+
+        # Store text sentiment result into list of past results
+        if(len(self.past_msg) > 10):
+            self.past_msg[:1] = []
+        self.past_msg.append(text_sentiment)
+
+        # RNN: 0 = negative, 1 = positive,
+        if(text_sentiment == 0 and facial_expr == 'angry'):
+            return True
+        elif (text_sentiment == 0 and facial_expr == 'disgusted'):
+            return True
+        elif (text_sentiment == 0 and facial_expr == 'neutral'):
+            total = sum(self.past_msg) / len(self.past_msg)
+            if(total <= 0.6):
+                # This means more than 40% of our previous messages were negative
+                return True
+            return False
+        else:
+            return False

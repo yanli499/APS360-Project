@@ -68,7 +68,6 @@ SERVER.bind(ADDR)
 
 ML_MODELS = ModelsContainer()
 
-
 if __name__ == "__main__":
     SERVER.listen(5)
     print("Waiting for connection...")
