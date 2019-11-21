@@ -48,7 +48,7 @@ def broadcast(msg, prefix=""):
     # <Get screenshot + save to some folder, returning filepath>
         # image_filepath = <screenshot related code>
     img_path = os.path.normpath('/Users/Harshita/Documents/GitHub/ChatTime/frame.jpg')
-    ML_MODELS.detect_image_emotion(img_path)
+    bully = ML_MODELS.combine_results(img_path)
 
     for sock in clients:
         sock.send(bytes(prefix, "utf8")+msg)

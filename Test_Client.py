@@ -6,19 +6,22 @@ from threading import Thread
 import tkinter
 import cv2
 
-def receive():
+def receive(bully=false):
     """Handles receiving of messages."""
     print("Receive")
     while True:
         try:
             msg = client_socket.recv(BUFSIZ).decode("utf8")
             msg_list.insert(tkinter.END, msg)
+            if bully:
+                tkinter.messagebox.showinfo("Bully Alert", "You might feel bullied! Please exit the chatroom if you do!")
         except OSError:  # Possibly client has left the chat.
             break
 
 
 def send(event=None):  # event is passed by binders.
     """Handles sending of messages."""
+
     msg = my_msg.get()
     my_msg.set("")  # Clears input field.
 
