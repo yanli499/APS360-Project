@@ -8,7 +8,6 @@ from threading import Thread
 from ML_API_V1 import ModelsContainer
 from pathlib import Path
 
-
 def accept_incoming_connections():
     """Sets up handling for incoming clients."""
     while True:
@@ -48,7 +47,7 @@ def broadcast(msg, prefix=""):
     # RUN ML MODEL HERE -----------
     # <Get screenshot + save to some folder, returning filepath>
         # image_filepath = <screenshot related code>
-    img_path = os.path.normpath('C:/Users/Lucy/Downloads/Test_Env/win_20191117_23_47_13_Pro.jpg')
+    img_path = os.path.normpath('/Users/Harshita/Documents/GitHub/ChatTime/frame.jpg')
     ML_MODELS.detect_image_emotion(img_path)
 
     for sock in clients:

@@ -25,7 +25,7 @@ from torch.autograd import Variable
 
 # GLOBAL VARIABLES
 CLASSES = ['afraid','angry','disgusted','happy','neutral','sad','surprised']
-LABELS = {0:"afraid", 1:"angry", 2:"disgusted", 3:"happy", 
+LABELS = {0:"afraid", 1:"angry", 2:"disgusted", 3:"happy",
             4:"neutral", 5:"sad", 6:"surprised"}
 # ROOT_IMAGE_DIR = os.path.normpath('C:/Users/Lucy/Downloads/Test_Env/')
 
@@ -53,7 +53,7 @@ class ModelsContainer:
         # Init facial ANN model
         self.alexnet = torchvision.models.alexnet(pretrained=True)
         self.facial_ann = ANNClassifier_Alexnet()
-        state_path = os.path.normpath('C:/Users/Lucy/Downloads/Test_Env/test_843_model_alexnet_ann_bs128_lr0_001_epoch149')
+        state_path = os.path.normpath('/Users/Harshita/Documents/GitHub/ChatTime/test_0843_model_alexnet_ann_bs128_lr0_001_epoch149')
         state = torch.load(state_path)
         self.facial_ann.load_state_dict(state)
 
@@ -64,9 +64,13 @@ class ModelsContainer:
         Returns:
             pred_label: emotion label (str) predicted by the model
         """
-        img = Image.open(filename).convert('L')
-        new_img = img.resize((256, 256))
-        new_img_path = os.path.normpath('C:/Users/Lucy/Downloads/Test_Env/TEMP/img.jpg')
+        img = Image.open(filename)
+        new_img = img.resize((1500, 1500))
+
+        data_transform = transforms.CenterCrop(500)
+        new_img = data_transform(img)
+
+        new_img_path = os.path.normpath('/Users/Harshita/Documents/GitHub/ChatTime/img.jpg')
         new_img.save(new_img_path)
 
         # Use to convert 1-channel grayscale image to a 3-channel "grayscale" image
@@ -75,20 +79,28 @@ class ModelsContainer:
         # data_transform(new_image) actually gives shape [1, 224, 224]
         # when we need [3, 224, 224] as input for AlexNet
         #########################
-        grey_img = cv2.imread(new_img_path, cv2.IMREAD_GRAYSCALE)
+        grey_img = cv2.imread(new_img_path, cv2.IMREAD_ANYCOLOR)
         grey = cv2.cvtColor(grey_img, cv2.COLOR_BGR2GRAY)
         img2 = np.zeros_like(grey_img)
         img2[:,:,0] = grey
         img2[:,:,1] = grey
         img2[:,:,2] = grey
-        new_grey_img_path = os.path.normpath('C:/Users/Lucy/Downloads/Test_Env/TEMP/img_grey.jpg')
+        new_grey_img_path = os.path.normpath('/Users/Harshita/Documents/GitHub/ChatTime/img_grey.jpg')
         cv2.imwrite(new_grey_img_path, img2)
         #########################
 
-        data_transform = transforms.Compose([transforms.CenterCrop(224),
-                                        transforms.ToTensor()])
+        #data_transform = transforms.Compose([transforms.CenterCrop(224),
+        #                                transforms.ToTensor()])
 
         imgs = Image.open(new_grey_img_path)
+        #imgs = data_transform(imgs)
+        imgs = imgs.resize((224, 224))
+
+        data_transform = transforms.ToTensor()
+
+        imgs_path = os.path.normpath('/Users/Harshita/Documents/GitHub/ChatTime/input_img.jpg')
+        imgs.save(imgs_path)
+
         imgs = data_transform(imgs)
         # print(imgs.shape) # DEBUG Log: torch.Size([3, 224, 224])
         imgs = imgs.reshape([1, 3, 224, 224])
