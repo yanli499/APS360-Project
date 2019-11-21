@@ -51,7 +51,7 @@ def broadcast(msg, prefix=""):
     bully = ML_MODELS.combine_results(img_path)
 
     for sock in clients:
-        sock.send(bytes(prefix, "utf8")+msg)
+        sock.send(bytes(prefix, "utf8")+msg, bully)
 
 
 # SERVER GLOBAL VARIABLES
