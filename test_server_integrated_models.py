@@ -5,7 +5,7 @@ import os
 
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
-from ML_API import ModelsContainer
+from ML_API_V1 import ModelsContainer
 from pathlib import Path
 
 
@@ -48,8 +48,15 @@ def broadcast(msg, prefix=""):
     # RUN ML MODEL HERE -----------
     # <Get screenshot + save to some folder, returning filepath>
         # image_filepath = <screenshot related code>
-    img_path = os.path.normpath('/Users/safeerahzainab/Desktop/APS360Project/surprised.jpg')
-    ML_MODELS.combine_results(img_path)
+    print(type(msg))
+    img_path = os.path.normpath('/Users/safeerahzainab/Desktop/APS360Project/frame.jpg')
+    temp = ML_MODELS.combine_results(img_path, str(msg))
+    print(temp)
+    print(msg)
+
+    if(temp == True):
+        # Send Warning
+        # chk if client side or server
 
     for sock in clients:
         sock.send(bytes(prefix, "utf8")+msg)

@@ -60,6 +60,7 @@ class TweetRNN_GRU(nn.Module):
     
     def forward(self, x):
         # Look up the embedding
+        x = x.type(torch.IntTensor)
         x = self.emb(x)
         # Set an initial hidden state
         h0 = torch.zeros(1, x.size(0), self.hidden_size)
