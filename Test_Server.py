@@ -44,15 +44,28 @@ def handle_client(client):
 def broadcast(msg, prefix=""):
     # prefix is for name identification.
     """Broadcasts a message to all the clients."""
+    print(type(msg))
+    img_path = os.path.normpath('/Users/safeerahzainab/Desktop/APS360Project/frame.jpg')
+    result = ML_MODELS.combine_results(img_path, str(msg))
+    print(result)
+    print(msg)
 
-    # RUN ML MODEL HERE -----------
-    # <Get screenshot + save to some folder, returning filepath>
-    # image_filepath = <screenshot related code>
-    img_path = os.path.normpath('C:/Users/Lucy/Downloads/Test_Env/win_20191117_23_47_13_Pro.jpg')
-    result = ML_MODELS.combine_results(img_path, msg)
-
-    for sock in clients:
-        sock.send(bytes(prefix, "utf8")+msg)
+    # If there is no name prefix, it's just a generic system message
+    # Empty str for result means it's ok to send
+    if(prefix == "" or result == "Pass"):
+        for sock in clients:
+            sock.send(bytes(prefix, "utf8")+msg)
+    elif(result == "Del"):
+        filtered_msg = "A harmful message sent by {} was blocked".format(prefix[:-1])
+        for sock in clients:
+            sock.send(bytes(prefix, "utf8")+filtered_msg)
+    else:
+        # result == "Warn"
+        # tkinter
+        # msg = "bully"+msg
+        # Send Warning then send message
+        for sock in clients:
+            sock.send(bytes(prefix, "utf8")+msg)
 
 
 # SERVER GLOBAL VARIABLES
@@ -68,6 +81,7 @@ SERVER = socket(AF_INET, SOCK_STREAM)
 SERVER.bind(ADDR)
 
 ML_MODELS = ModelsContainer()
+
 
 if __name__ == "__main__":
     SERVER.listen(5)

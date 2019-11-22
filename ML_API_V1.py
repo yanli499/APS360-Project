@@ -60,6 +60,7 @@ class TweetRNN_GRU(nn.Module):
     
     def forward(self, x):
         # Look up the embedding
+        x = x.type(torch.IntTensor)
         x = self.emb(x)
         # Set an initial hidden state
         h0 = torch.zeros(1, x.size(0), self.hidden_size)
@@ -165,19 +166,15 @@ class ModelsContainer:
         imgs.save(imgs_path)
 
         imgs = data_transform(imgs)
-        # print(imgs.shape) # DEBUG Log: torch.Size([3, 224, 224])
         imgs = imgs.reshape([1, 3, 224, 224])
 
         features = self.alexnet.features(imgs)
-        # print(features.shape) # DEBUG Log: torch.Size([1, 256, 6, 6])
         features = torch.from_numpy(features.detach().numpy())
 
         out = self.facial_ann(features)
         prob = F.softmax(out)
         pred = prob.max(1, keepdim=True)[1]
-        # print(pred) # DEBUG
-        np_pred = pred.numpy() # TODO: Verify that output format is always list of lists, [[#]]
-        # print(np_pred) # DEBUG
+        np_pred = pred.numpy()
         pred_label = LABELS[np_pred[0][0]]
         print(pred_label) # DEBUG
 
@@ -195,14 +192,14 @@ class ModelsContainer:
 
         # RNN: 0 = negative, 1 = positive,
         if(text_sentiment == 0 and facial_expr == 'angry'):
-            return True
+            return "Del"
         elif (text_sentiment == 0 and facial_expr == 'disgusted'):
-            return True
+            return "Del"
         elif (text_sentiment == 0 and facial_expr == 'neutral'):
             total = sum(self.past_msg) / len(self.past_msg)
             if(total <= 0.6):
                 # This means more than 40% of our previous messages were negative
-                return True
-            return False
+                return "Warn"
+            return "Pass"
         else:
-            return False
+            return "Pass"
