@@ -113,7 +113,8 @@ class ModelsContainer:
         return idxs
 
     def detect_text_sentiment(self, msg):
-        new_tweet = self.get_new_tweet(GLOVE, msg)
+        new_tweet = self.get_new_tweet(GLOVE, msg) # tensor([])
+
         out = torch.sigmoid(self.text_rnn_gru(new_tweet.unsqueeze(0)))
         pred = out.max(1, keepdim=True)[1]
         int_pred = pred.item()
