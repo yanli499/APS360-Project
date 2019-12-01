@@ -5,7 +5,7 @@ import os
 
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
-from ML_API_V1 import ModelsContainer
+from ML_API import ModelsContainer
 from pathlib import Path
 
 
