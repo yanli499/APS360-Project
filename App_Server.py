@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-"""Server for multithreaded (asynchronous) chat application."""
-"""From https://medium.com/swlh/lets-write-a-chat-app-in-python-f6783a9ac170"""
 import os
 
 from socket import AF_INET, socket, SOCK_STREAM
@@ -45,9 +43,6 @@ def broadcast(msg, prefix=""):
     # prefix is for name identification.
     """Broadcasts a message to all the clients."""
 
-    # RUN ML MODEL HERE -----------
-    # <Get screenshot + save to some folder, returning filepath>
-        # image_filepath = <screenshot related code>
     img_path = os.path.normpath('/Users/safeerahzainab/Desktop/APS360Project/frame.jpg')
     result = ML_MODELS.combine_results(img_path, msg.decode('utf-8'))
     print(result)
@@ -65,8 +60,6 @@ def broadcast(msg, prefix=""):
         bully = "bully "
         for sock in clients:
             sock.send(bytes(bully, "utf8")+bytes(prefix[:-2], "utf8"))
-
-
 
 
 

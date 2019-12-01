@@ -8,6 +8,7 @@ Our ...................
 
 ### Installing
 Our app runs with Python 3.7 on Anaconda. Users will need to install OpenCV, PyTorch, Pillow, and........
+(https://www.dropbox.com/s/395hb1x5xnmc4dg/model_RNN_GRU_bs100_lr0.003_epoch6?dl=0)
 
 ### Running
 The following terminal command starts up the server:
