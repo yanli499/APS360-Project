@@ -67,8 +67,8 @@ def broadcast(msg, prefix=""):
 clients = {}
 addresses = {}
 
-HOST = '127.0.0.1'
-PORT = 33000
+HOST = input('Enter host: ')
+PORT = input('Enter port: ')
 BUFSIZ = 1024
 ADDR = (HOST, PORT)
 
