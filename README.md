@@ -32,3 +32,7 @@ Enter host: 127.0.0.1
 Enter port: 33000
 ```
 A GUI will pop up to allow the user to begin chatting.
+
+## Implementation of ML Models
+Our sentiment analysis GRU model was trained with .....
+Our facial expression detection model was trained using the KDEF dataset, and additionally tested with AKDEF and JAFFE datasets, which can be found [in DropBox](https://www.dropbox.com/s/pomc5v8720lnm1s/Facial_Dataset.zip?dl=0). Google Colab was used to train our models, and the implementations of our text, facial, and baseline models can be found in the attached Jupyter Notebooks on the master branch.
